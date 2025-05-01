@@ -1,14 +1,11 @@
-import SimpleITK as sitk
+import nibabel as nib
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 
-class CTViewer:
+class NiftiViewer:
     def __init__(self, volume):
         self.volume = volume
-        self.index = volume.shape[0] // 2
-
-
+        self.index = volume.shape[0] // 2  # Start at middle slice
         self.fig, self.ax = plt.subplots()
         self.im = self.ax.imshow(self.volume[self.index], cmap='gray')
         self.update_title()
@@ -31,9 +28,10 @@ class CTViewer:
 
 
 def load_and_view(path):
-    image = sitk.ReadImage(path)
-    volume = sitk.GetArrayFromImage(image)
-    CTViewer(volume)
+    nifti = nib.load(path)
+    volume = nifti.get_fdata()
+    volume = np.transpose(volume, (2, 1, 0))
+    NiftiViewer(volume)
 
 
 path_to_file = input("Provide absolute path to the .mhd file: ")
