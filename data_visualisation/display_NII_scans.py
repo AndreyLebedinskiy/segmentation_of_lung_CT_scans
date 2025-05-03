@@ -5,7 +5,7 @@ import numpy as np
 class NiftiViewer:
     def __init__(self, volume):
         self.volume = volume
-        self.index = volume.shape[0] // 2  # Start at middle slice
+        self.index = volume.shape[0] // 2
         self.fig, self.ax = plt.subplots()
         self.im = self.ax.imshow(self.volume[self.index], cmap='gray')
         self.update_title()
@@ -34,5 +34,5 @@ def load_and_view(path):
     NiftiViewer(volume)
 
 
-path_to_file = input("Provide absolute path to the .mhd file: ")
+path_to_file = input("Provide absolute path to the .nii.gz file: ")
 load_and_view(path_to_file)
