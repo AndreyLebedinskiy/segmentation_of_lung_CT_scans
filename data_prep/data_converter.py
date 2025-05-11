@@ -47,12 +47,12 @@ vessel_masks_subdirs = [
     "Lungmasks"
 ]
 
-luna_input_dir = "segmentation_of_lung_CT_scans/data/luna16_data/"
-luna_output_dir = "segmentation_of_lung_CT_scans/data/luna16_converted/scans/"
-luna_masks_output_dir = "segmentation_of_lung_CT_scans/data/luna16_converted/lung_masks/"
-vessel_input_dir = "segmentation_of_lung_CT_scans/data/vessel12_data/"
-vessel_output_dir = "segmentation_of_lung_CT_scans/data/vessel12_converted/scans/"
-vessel_masks_output_dir = "segmentation_of_lung_CT_scans/data/vessel12_converted/lung_masks/"
+luna_input_dir = "data/luna16_data/"
+luna_output_dir = "data/luna16_converted/scans/"
+luna_masks_output_dir = "data/luna16_converted/lung_masks/"
+vessel_input_dir = "data/vessel12_data/"
+vessel_output_dir = "data/vessel12_converted/scans/"
+vessel_masks_output_dir = "data/vessel12_converted/lung_masks/"
 
 dir_itteration(luna_input_dir, luna_output_dir, luna_subdirs)
 dir_itteration(luna_input_dir, luna_masks_output_dir, luna_masks_subdirs)

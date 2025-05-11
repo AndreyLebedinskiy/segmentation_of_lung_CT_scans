@@ -77,20 +77,20 @@ def applying_preprocesing(input_folder, output_folder, is_mask):
                         is_mask
                 )
 
-luna_masks_input = "segmentation_of_lung_CT_scans/data/luna16_converted/lung_masks/"
-luna_data_input = "segmentation_of_lung_CT_scans/data/luna16_converted/scans/"
-luna_masks_output = "segmentation_of_lung_CT_scans/data/preprocesd/luna16/lung_masks/"
-luna_data_output = "segmentation_of_lung_CT_scans/data/preprocesd/luna16/scans/"
+luna_masks_input = "data/luna16_converted/lung_masks/"
+luna_data_input = "data/luna16_converted/scans/"
+luna_masks_output = "data/preprocesd/luna16/lung_masks/"
+luna_data_output = "data/preprocesd/luna16/scans/"
 
-vessel_masks_input = "segmentation_of_lung_CT_scans/data/vessel12_converted/lung_masks/"
-vessel_data_input = "segmentation_of_lung_CT_scans/data/vessel12_converted/scans/"
-vessel_masks_output = "segmentation_of_lung_CT_scans/data/preprocesd/vessel12/lung_masks/"
-vessel_data_output = "segmentation_of_lung_CT_scans/data/preprocesd/vessel12/scans/"
+vessel_masks_input = "data/vessel12_converted/lung_masks/"
+vessel_data_input = "data/vessel12_converted/scans/"
+vessel_masks_output = "data/preprocesd/vessel12/lung_masks/"
+vessel_data_output = "data/preprocesd/vessel12/scans/"
 
-mmwhs_masks_input = "segmentation_of_lung_CT_scans/data/MMWHS_data/all_masks"
-mmwhs_data_input = "segmentation_of_lung_CT_scans/data/MMWHS_data/all_scans"
-mmwhs_masks_output = "segmentation_of_lung_CT_scans/data/preprocesd/MMWHS_data/heart_masks"
-mmwhs_data_output = "segmentation_of_lung_CT_scans/data/preprocesd/MMWHS_data/scans"
+mmwhs_masks_input = "data/MMWHS_data/all_masks"
+mmwhs_data_input = "data/MMWHS_data/all_scans"
+mmwhs_masks_output = "data/preprocesd/MMWHS_data/heart_masks"
+mmwhs_data_output = "data/preprocesd/MMWHS_data/scans"
 
 #applying_preprocesing(luna_masks_input, luna_masks_output, True)
 applying_preprocesing(luna_data_input, luna_data_output, False)

@@ -35,8 +35,8 @@ vessel_urls = [
     "https://zenodo.org/records/8055066/files/VESSEL12_ExampleScans.tar.bz2"
 ]
 
-luna_output_dir = "segmentation_of_lung_CT_scans/data/luna16_data"
-vessel_output_dir = "segmentation_of_lung_CT_scans/data/vessel12_data"
+luna_output_dir = "data/luna16_data"
+vessel_output_dir = "data/vessel12_data"
 
 
 # Functions

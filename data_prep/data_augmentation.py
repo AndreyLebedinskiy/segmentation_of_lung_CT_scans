@@ -56,8 +56,8 @@ def augment_dataset(scan_folder, mask_folder, output_folder, num_aug=2):
 
 
 augment_dataset(
-    scan_folder='segmentation_of_lung_CT_scans/data/preprocesd/luna16/scans',
-    mask_folder='segmentation_of_lung_CT_scans/data/preprocesd/luna16/lung_masks',
-    output_folder='segmentation_of_lung_CT_scans/data/augmented/luna16',
+    scan_folder='data/preprocesd/luna16/scans',
+    mask_folder='data/preprocesd/luna16/lung_masks',
+    output_folder='data/augmented/luna16',
     num_aug=2
 )
