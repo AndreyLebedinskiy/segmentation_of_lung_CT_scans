@@ -7,10 +7,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 from models.encoder import UNetEncoder
-from models.rotation_head import RotationHead
-from dataloaders.rotation_dataset import RotationDataset
+from models.jigsaw_head import JigsawHead
+from dataloaders.jigsaw_dataset import JigsawDataset
 import matplotlib.pyplot as plt
-
 
 
 DATA_DIRS = [
@@ -21,10 +20,23 @@ DATA_DIRS = [
     'data/preprocesd/MMWHS_data/scans',
     'data/preprocesd/vessel12/scans'
 ]
+ENCODER_PATH = 'best_encoder_rotation.pth'
 BATCH_SIZE = 1
 EPOCHS = 10
 LEARNING_RATE = 1e-4
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+dataset = JigsawDataset(scan_folders=DATA_DIRS)
+train_size = int(0.8 * len(dataset))
+val_size = len(dataset) - train_size
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+encoder = UNetEncoder().to(DEVICE)
+encoder.load_state_dict(torch.load(ENCODER_PATH, map_location=DEVICE))
+head = JigsawHead().to(DEVICE)
+optimizer = optim.Adam(list(encoder.parameters()) + list(head.parameters()), lr=LEARNING_RATE)
+criterion = nn.CrossEntropyLoss()
 
 
 def validate(encoder, head, dataloader, criterion, device):
@@ -48,18 +60,6 @@ def validate(encoder, head, dataloader, criterion, device):
     return avg_loss, acc
 
 
-dataset = RotationDataset(scan_folders=DATA_DIRS)
-train_size = int(0.8 * len(dataset))
-val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-encoder = UNetEncoder().to(DEVICE)
-head = RotationHead().to(DEVICE)
-optimizer = optim.Adam(list(encoder.parameters()) + list(head.parameters()), lr=LEARNING_RATE)
-criterion = nn.CrossEntropyLoss()
-
-torch.cuda.empty_cache()
 train_accs, val_accs = [], []
 best_val_acc = 0
 for epoch in range(EPOCHS):
@@ -72,14 +72,12 @@ for epoch in range(EPOCHS):
     for images, labels in train_loader:
         images = images.to(DEVICE)
         labels = labels.to(DEVICE)
-
         optimizer.zero_grad()
         features = encoder(images)
         outputs = head(features)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-
         total_loss += loss.item() * labels.size(0)
         preds = torch.argmax(outputs, dim=1)
         correct += (preds == labels).sum().item()
@@ -92,12 +90,12 @@ for epoch in range(EPOCHS):
     print(f"Epoch {epoch+1}/{EPOCHS} - Train Acc: {train_acc:.4f} - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.4f}")
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        torch.save(encoder.state_dict(), 'best_encoder_rotation.pth')
+        torch.save(encoder.state_dict(), 'best_encoder_jigsaw.pth')
 
 plt.plot(train_accs, label='Train Acc')
 plt.plot(val_accs, label='Val Acc')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-plt.title('Rotation Prediction Accuracy')
+plt.title('Jigsaw Puzzle Prediction Accuracy')
 plt.legend()
 plt.show()
