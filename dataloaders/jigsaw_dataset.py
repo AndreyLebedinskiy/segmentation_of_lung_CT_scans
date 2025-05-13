@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 import torch.nn.functional as F
 from itertools import permutations
 
-# Generate a list of 100 valid permutations of 8 elements where all indices are used at least once
+
 def generate_permutation_set(n=8, k=100, seed=42):
     random.seed(seed)
     perm_set = set()
@@ -19,7 +19,9 @@ def generate_permutation_set(n=8, k=100, seed=42):
             break
     return list(perm_set)
 
+
 PERMUTATIONS = generate_permutation_set()
+
 
 class JigsawDataset(Dataset):
     def __init__(self, scan_folders, target_shape=(128, 256, 256), grid_size=(2, 2, 2)):
@@ -58,19 +60,15 @@ class JigsawDataset(Dataset):
     def __getitem__(self, idx):
         path = self.scan_paths[idx]
         scan = nib.load(path).get_fdata()
-        scan = torch.tensor(scan.copy(), dtype=torch.float32).unsqueeze(0).unsqueeze(0)  # [1, 1, D, H, W]
+        scan = torch.tensor(scan.copy(), dtype=torch.float32).unsqueeze(0).unsqueeze(0)
         scan = F.interpolate(scan, size=self.target_shape, mode='trilinear', align_corners=False)
-        scan = scan.squeeze(0).squeeze(0).numpy()  # [D, H, W]
+        scan = scan.squeeze(0).squeeze(0).numpy()
 
-        # Split into 8 patches
-        patches = self._split_volume(scan)  # list of 8 subvolumes
-
-        # Select and apply a permutation
+        patches = self._split_volume(scan)
         perm_index = random.randint(0, len(self.permutations) - 1)
         perm = self.permutations[perm_index]
         permuted_patches = [patches[i] for i in perm]
 
-        # Reassemble permuted volume
         gz, gy, gx = self.grid_size
         sz, sy, sx = self.target_shape[0] // gz, self.target_shape[1] // gy, self.target_shape[2] // gx
         volume = np.zeros(self.target_shape, dtype=np.float32)
@@ -85,6 +83,6 @@ class JigsawDataset(Dataset):
                     ] = permuted_patches[i]
                     i += 1
 
-        volume = torch.tensor(volume[None, ...], dtype=torch.float32)  # [1, D, H, W]
+        volume = torch.tensor(volume[None, ...], dtype=torch.float32)
         label = torch.tensor(perm_index, dtype=torch.long)
         return volume, label
