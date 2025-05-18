@@ -87,10 +87,10 @@ vessel_data_input = "data/vessel12_converted/scans/"
 vessel_masks_output = "data/preprocesd/vessel12/lung_masks/"
 vessel_data_output = "data/preprocesd/vessel12/scans/"
 
-mmwhs_masks_input = "data/MMWHS_data/all_masks"
-mmwhs_data_input = "data/MMWHS_data/all_scans"
-mmwhs_masks_output = "data/preprocesd/MMWHS_data/heart_masks"
-mmwhs_data_output = "data/preprocesd/MMWHS_data/scans"
+mmwhs_masks_input = "data/MMWHS/all_masks"
+mmwhs_data_input = "data/MMWHS/all_scans"
+mmwhs_masks_output = "data/preprocesd/MMWHS/heart_masks"
+mmwhs_data_output = "data/preprocesd/MMWHS/scans"
 
 #applying_preprocesing(luna_masks_input, luna_masks_output, True)
 applying_preprocesing(luna_data_input, luna_data_output, False)

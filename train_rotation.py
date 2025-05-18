@@ -18,9 +18,10 @@ DATA_DIRS = [
     'data/augmented/MMWHS/scans',
     'data/augmented/vessel12/scans',
     'data/preprocesd/luna16/scans',
-    'data/preprocesd/MMWHS_data/scans',
+    'data/preprocesd/MMWHS/scans',
     'data/preprocesd/vessel12/scans'
 ]
+SAVE_PATH = 'pretrained_encoders/best_encoder_rotation.pth'
 BATCH_SIZE = 1
 EPOCHS = 10
 LEARNING_RATE = 1e-4
@@ -90,9 +91,11 @@ for epoch in range(EPOCHS):
     val_loss, val_acc = validate(encoder, head, val_loader, criterion, DEVICE)
     val_accs.append(val_acc)
     print(f"Epoch {epoch+1}/{EPOCHS} - Train Acc: {train_acc:.4f} - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.4f}")
+    
     if val_acc > best_val_acc:
         best_val_acc = val_acc
-        torch.save(encoder.state_dict(), 'best_encoder_rotation.pth')
+        os.makedirs(os.path.dirname(SAVE_PATH), exist_ok=True)
+        torch.save(encoder.state_dict(), SAVE_PATH)
 
 plt.plot(train_accs, label='Train Acc')
 plt.plot(val_accs, label='Val Acc')
