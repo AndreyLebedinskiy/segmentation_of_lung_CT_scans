@@ -6,7 +6,7 @@ class JigsawHead(nn.Module):
 
         self.pool = nn.AdaptiveAvgPool3d((1, 1, 1))
         self.classifier = nn.Sequential(
-            nn.Flatten(),                # [B, C, 1, 1, 1] → [B, C]
+            nn.Flatten(),
             nn.Linear(in_channels, 1024),
             nn.ReLU(inplace=True),
             nn.Linear(1024, num_classes)

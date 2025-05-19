@@ -33,9 +33,9 @@ class UNetEncoder(nn.Module):
         self.bottleneck = ConvBlock(base_channels * 8, base_channels * 16)
 
     def forward(self, x):
-        x1 = self.down1(x)                     # 256×256×128
-        x2 = self.down2(self.pool1(x1))        # 128×128×64
-        x3 = self.down3(self.pool2(x2))        # 64×64×32
-        x4 = self.down4(self.pool3(x3))        # 32×32×16
-        x5 = self.bottleneck(self.pool4(x4))   # 16×16×8
+        x1 = self.down1(x) # 256×256×128
+        x2 = self.down2(self.pool1(x1)) # 128×128×64
+        x3 = self.down3(self.pool2(x2)) # 64×64×32
+        x4 = self.down4(self.pool3(x3)) # 32×32×16
+        x5 = self.bottleneck(self.pool4(x4)) # 16×16×8
         return x5

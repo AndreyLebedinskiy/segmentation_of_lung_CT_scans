@@ -1,8 +1,8 @@
 import torch.nn as nn
 
-class LungDecoder(nn.Module):
+class VesselDecoder(nn.Module):
     def __init__(self, in_channels, num_classes=1):
-        super(LungDecoder, self).__init__()
+        super(VesselDecoder, self).__init__()
 
         self.up1 = nn.Sequential(
             nn.ConvTranspose3d(in_channels, 256, kernel_size=2, stride=2),
