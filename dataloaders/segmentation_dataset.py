@@ -3,7 +3,7 @@ import nibabel as nib
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-import torch.nn.functional as F
+import torch.nn.functional as functional
 
 class SegmentationDataset(Dataset):
     def __init__(self, scan_dirs, mask_dirs, task_type, target_shape=(128, 256, 256), num_classes=None):
@@ -27,12 +27,11 @@ class SegmentationDataset(Dataset):
         mask_path = self.mask_paths[idx]
         scan = nib.load(scan_path).get_fdata().astype(np.float32)
         mask = nib.load(mask_path).get_fdata().astype(np.uint8)
-        scan = torch.tensor(scan[None, ...], dtype=torch.float32)  # [1, D, H, W]
-        mask = torch.tensor(mask[None, ...], dtype=torch.float32)     # [1, D, H, W]
-        scan = F.interpolate(scan.unsqueeze(0), size=self.target_shape, mode='trilinear', align_corners=False).squeeze(0)
-        mask = F.interpolate(mask.unsqueeze(0).float(), size=self.target_shape, mode='nearest').squeeze(0)
-        
+        scan = torch.tensor(scan[None, ...], dtype=torch.float32)
+        mask = torch.tensor(mask[None, ...], dtype=torch.long)
+        scan = functional.interpolate(scan.unsqueeze(0), size=self.target_shape, mode='trilinear', align_corners=False).squeeze(0)
+        mask = functional.interpolate(mask.unsqueeze(0).float(), size=self.target_shape, mode='nearest').squeeze(0).long()
         if self.num_classes and self.num_classes > 1:
-            mask = F.one_hot(mask.squeeze(0), num_classes=self.num_classes).permute(3, 0, 1, 2).float()  # [C, D, H, W]
+            mask = functional.one_hot(mask.squeeze(0), num_classes=self.num_classes).permute(3, 0, 1, 2).float()
 
         return scan, mask, self.task_type

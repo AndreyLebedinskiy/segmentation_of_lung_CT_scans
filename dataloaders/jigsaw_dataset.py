@@ -4,7 +4,7 @@ import numpy as np
 import nibabel as nib
 import torch
 from torch.utils.data import Dataset
-import torch.nn.functional as F
+import torch.nn.functional as functional
 from itertools import permutations
 
 
@@ -27,13 +27,9 @@ class JigsawDataset(Dataset):
     def __init__(self, scan_folders, target_shape=(128, 256, 256), grid_size=(2, 2, 2)):
         if isinstance(scan_folders, str):
             scan_folders = [scan_folders]
-
         self.scan_paths = []
         for folder in scan_folders:
-            self.scan_paths.extend([
-                os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.nii.gz')
-            ])
-
+            self.scan_paths.extend([ os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.nii.gz')])
         self.target_shape = target_shape
         self.grid_size = grid_size
         self.permutations = PERMUTATIONS
@@ -61,7 +57,7 @@ class JigsawDataset(Dataset):
         path = self.scan_paths[idx]
         scan = nib.load(path).get_fdata()
         scan = torch.tensor(scan.copy(), dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-        scan = F.interpolate(scan, size=self.target_shape, mode='trilinear', align_corners=False)
+        scan = functional.interpolate(scan, size=self.target_shape, mode='trilinear', align_corners=False)
         scan = scan.squeeze(0).squeeze(0).numpy()
 
         patches = self._split_volume(scan)
