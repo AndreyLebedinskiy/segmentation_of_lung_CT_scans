@@ -4,8 +4,8 @@ from glob import glob
 
 
 transform = tio.Compose([
-    tio.RandomElasticDeformation(num_control_points=7, max_displacement=7, locked_borders=2, p=0.7),
-    tio.RandomNoise(mean=0, std=0.02, p=0.7),
+    tio.RandomElasticDeformation(num_control_points=5, max_displacement=10, locked_borders=2, p=0.9),
+    tio.RandomNoise(mean=0, std=0.03, p=0.7),
     tio.RandomGamma(log_gamma=(0.9, 1.01), p=0.7),
 ])
 
@@ -32,32 +32,30 @@ def augment_scan_mask_pair(image_path, mask_path, output_dir, num_aug=2):
         augmented.image.save(os.path.join(output_dir, 'scans', base))
         augmented.mask.save(os.path.join(output_dir, 'masks', mask_base))
 
-
 def augment_dataset(scan_folder, mask_folder, output_folder, num_aug=2):
     os.makedirs(os.path.join(output_folder, 'scans'), exist_ok=True)
     if mask_folder:
         os.makedirs(os.path.join(output_folder, 'masks'), exist_ok=True)
-    print("Augmenting folder:", scan_folder)
 
+    print("Augmenting folder:", scan_folder)
     scan_paths = sorted(glob(os.path.join(scan_folder, '*.nii.gz')))
-    mask_paths = []
-    if mask_folder: 
-        mask_paths = sorted(glob(os.path.join(mask_folder, '*.nii.gz')))
-    mask_dict = {os.path.basename(p): path for path in mask_paths}
+    
+    mask_paths = sorted(glob(os.path.join(mask_folder, '*.nii.gz'))) if mask_folder else []
+    mask_dict = {os.path.basename(p): p for p in mask_paths}
 
     for scan_path in scan_paths:
-        scan_fname = os.path.basename(scan_path)
-        mask_path = mask_dict.get(scan_fname)
+        fname = os.path.basename(scan_path)
+        mask_path = mask_dict.get(fname)
 
         if mask_path:
             augment_scan_mask_pair(scan_path, mask_path, output_folder, num_aug=num_aug)
         else:
-            augment_scan_only(scan_path, output_dir=output_folder, num_aug=num_aug)
+            augment_scan_only(scan_path, output_folder, num_aug=num_aug)
 
-
+# === Run augmentation ===
 augment_dataset(
-    scan_folder='data/preprocesd/luna16/scans',
-    mask_folder='data/preprocesd/luna16/lung_masks',
-    output_folder='data/augmented/luna16',
-    num_aug=2
+    scan_folder='data/preprocesd/vessel12/ExampleScans/scans',
+    mask_folder='data/preprocesd/vessel12/ExampleScans/vessel_masks',
+    output_folder='data/augmented/vessel12/ExampleScans',
+    num_aug=10
 )

@@ -26,7 +26,6 @@ def resample(image, target_spacing, is_mask):
 
 
 def crop_or_pad(volume, target_shape):
-    """Crop or pad a 3D volume to the desired shape (centered)."""
     result = np.zeros(target_shape, dtype=volume.dtype)
     input_shape = volume.shape
     crop = [max((s - t) // 2, 0) for s, t in zip(input_shape, target_shape)]
@@ -87,12 +86,17 @@ vessel_data_input = "data/vessel12_converted/scans/"
 vessel_masks_output = "data/preprocesd/vessel12/lung_masks/"
 vessel_data_output = "data/preprocesd/vessel12/scans/"
 
+vessel_masks_input = "data/raw/vessel12/ExampleScans/Vessel_masks/"
+vessel_data_input = "data/raw/vessel12/ExampleScans/scans_converted/"
+vessel_masks_output = "data/preprocesd/vessel12/ExampleScans/vessel_masks/"
+vessel_data_output = "data/preprocesd/vessel12/ExampleScans/scans/"
+
 mmwhs_masks_input = "data/MMWHS/all_masks"
 mmwhs_data_input = "data/MMWHS/all_scans"
 mmwhs_masks_output = "data/preprocesd/MMWHS/heart_masks"
 mmwhs_data_output = "data/preprocesd/MMWHS/scans"
 
-#applying_preprocesing(luna_masks_input, luna_masks_output, True)
+applying_preprocesing(luna_masks_input, luna_masks_output, True)
 applying_preprocesing(luna_data_input, luna_data_output, False)
 applying_preprocesing(vessel_masks_input, vessel_masks_output, True)
 applying_preprocesing(vessel_data_input, vessel_data_output, False)
