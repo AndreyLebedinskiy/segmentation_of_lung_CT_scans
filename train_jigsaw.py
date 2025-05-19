@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 
 
 DATA_DIRS = [
-    #'data/augmented/luna16/scans',
-    #'data/augmented/MMWHS/scans',
-    #'data/augmented/vessel12/scans',
+    'data/augmented/luna16/scans',
+    'data/augmented/MMWHS/scans',
+    'data/augmented/vessel12/scans',
     'data/preprocesd/luna16/scans',
     'data/preprocesd/MMWHS/scans',
     'data/preprocesd/vessel12/scans' 
@@ -26,17 +26,6 @@ EPOCHS = 10
 LEARNING_RATE = 1e-4
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-dataset = JigsawDataset(scan_folders=DATA_DIRS)
-train_size = int(0.8 * len(dataset))
-val_size = len(dataset) - train_size
-train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-
-encoder = UNetEncoder().to(DEVICE)
-head = JigsawHead().to(DEVICE)
-optimizer = optim.Adam(list(encoder.parameters()) + list(head.parameters()), lr=LEARNING_RATE)
-criterion = nn.CrossEntropyLoss()
 
 def validate(encoder, head, dataloader, criterion, device):
     encoder.eval()
@@ -55,6 +44,19 @@ def validate(encoder, head, dataloader, criterion, device):
             correct += (preds == labels).sum().item()
             total += labels.size(0)
     return val_loss / total, correct / total
+
+
+dataset = JigsawDataset(scan_folders=DATA_DIRS)
+train_size = int(0.8 * len(dataset))
+val_size = len(dataset) - train_size
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+
+encoder = UNetEncoder().to(DEVICE)
+head = JigsawHead().to(DEVICE)
+optimizer = optim.Adam(list(encoder.parameters()) + list(head.parameters()), lr=LEARNING_RATE)
+criterion = nn.CrossEntropyLoss()
 
 train_accs, val_accs = [], []
 best_val_acc = 0
@@ -84,7 +86,6 @@ for epoch in range(EPOCHS):
     val_loss, val_acc = validate(encoder, head, val_loader, criterion, DEVICE)
     val_accs.append(val_acc)
     print(f"Epoch {epoch+1}/{EPOCHS} - Train Acc: {train_acc:.4f} - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.4f}")
-
     if val_acc > best_val_acc:
         best_val_acc = val_acc
         os.makedirs(os.path.dirname(SAVE_PATH), exist_ok=True)

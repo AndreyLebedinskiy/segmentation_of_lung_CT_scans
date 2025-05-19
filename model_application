@@ -1,0 +1,34 @@
+import torch
+import nibabel as nib
+import torch.nn.functional as functional
+from models.encoder import UNetEncoder
+from models.heart_decoder import HeartDecoder
+
+
+SCAN_PATH = 'data/augmented/luna16/scans/1.3.6.1.4.1.14519.5.2.1.6279.6001.100225287222365663678666836860_aug0.nii.gz'
+ENCODER_PATH = 'pretrained_encoders/best_encoder_rotation.pth'
+DECODER_PATH = 'pretrained_decoders/heart_decoder_rotation.pth' 
+SAVE_PATH = 'predicted_mask.nii.gz'
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+TARGET_SHAPE = (128, 256, 256)
+
+scan_data = nib.load(SCAN_PATH).get_fdata().astype('float32')
+scan_tensor = torch.tensor(scan_data).unsqueeze(0).unsqueeze(0)
+scan_tensor = functional.interpolate(scan_tensor, size=TARGET_SHAPE, mode='trilinear', align_corners=False).to(DEVICE)
+
+encoder = UNetEncoder().to(DEVICE)
+encoder.load_state_dict(torch.load(ENCODER_PATH, map_location=DEVICE))
+encoder.eval()
+decoder = HeartDecoder(in_channels=512, num_classes=4).to(DEVICE)
+decoder.load_state_dict(torch.load(DECODER_PATH, map_location=DEVICE))
+decoder.eval()
+
+with torch.no_grad():
+    features = encoder(scan_tensor)
+    logits = decoder(features)
+    probs = torch.sigmoid(logits)
+    mask_pred = (probs > 0.5).float().squeeze().cpu().numpy()
+
+affine = nib.load(SCAN_PATH).affine
+nib.save(nib.Nifti1Image(mask_pred.astype('uint8'), affine), SAVE_PATH)
+print("Saved predicted mask to 'predicted_mask.nii.gz'")

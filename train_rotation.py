@@ -12,7 +12,6 @@ from dataloaders.rotation_dataset import RotationDataset
 import matplotlib.pyplot as plt
 
 
-
 DATA_DIRS = [
     'data/augmented/luna16/scans',
     'data/augmented/MMWHS/scans',
