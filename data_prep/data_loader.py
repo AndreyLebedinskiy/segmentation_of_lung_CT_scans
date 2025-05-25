@@ -6,41 +6,8 @@ import tarfile
 import bz2
 
 
-# Statics
-luna_urls = [
-    "https://zenodo.org/records/3723295/files/annotations.csv",
-    "https://zenodo.org/records/3723295/files/candidates.csv",
-    "https://zenodo.org/records/3723295/files/candidates_V2.zip",
-    "https://zenodo.org/records/3723295/files/evaluationScript.zip",
-    "https://zenodo.org/records/3723295/files/sampleSubmission.csv",
-    "https://zenodo.org/records/3723295/files/seg-lungs-LUNA16.zip",
-    "https://zenodo.org/records/3723295/files/subset0.zip",
-    "https://zenodo.org/records/3723295/files/subset1.zip",
-    "https://zenodo.org/records/3723295/files/subset2.zip",
-    "https://zenodo.org/records/3723295/files/subset3.zip",
-    "https://zenodo.org/records/3723295/files/subset4.zip",
-    "https://zenodo.org/records/3723295/files/subset5.zip",
-    "https://zenodo.org/records/3723295/files/subset6.zip",
-    "https://zenodo.org/records/4121926/files/subset7.zip",
-    "https://zenodo.org/records/4121926/files/subset8.zip",
-    "https://zenodo.org/records/4121926/files/subset9.zip"
-]
-
-vessel_urls = [
-    "https://zenodo.org/records/8055066/files/VESSEL12_01-05.tar.bz2",
-    "https://zenodo.org/records/8055066/files/VESSEL12_01-20_Lungmasks.tar.bz2",
-    "https://zenodo.org/records/8055066/files/VESSEL12_06-10.tar.bz2",
-    "https://zenodo.org/records/8055066/files/VESSEL12_11_15.tar.bz2",
-    "https://zenodo.org/records/8055066/files/VESSEL12_16-20.tar.bz2",
-    "https://zenodo.org/records/8055066/files/VESSEL12_ExampleScans.tar.bz2"
-]
-
-luna_output_dir = "data/luna16_data"
-vessel_output_dir = "data/vessel12_data"
-
-
-# Functions
 def download_file(url, output_path):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     response = requests.get(url, stream=True)
     total_size = int(response.headers.get('content-length', 0))
 
@@ -77,22 +44,19 @@ def untar_file(path, output_dir):
 
 
 def unbz2_file(path, output_dir):
-    output_dir_bz2 = os.path.join(output_dir, os.path.basename(path)[:-4])
-    with bz2.BZ2File(path, 'rb') as file:
-        content = file.read()
-    with open(output_dir_bz2, 'wb') as f_out:
-        f_out.write(content)
-   
-    if output_dir.endswith('.tar'):
-        tar_output_path = output_dir[:-4]
-        untar_file(output_dir_bz2, output_dir)
+    tar_path = os.path.join(output_dir, os.path.basename(path)[:-4])
+    with bz2.BZ2File(path, 'rb') as file, open(tar_path, 'wb') as out_file:
+        out_file.write(file.read())
+    
+    if tar_path.endswith('.tar'):
+        untar_file(tar_path, output_dir)
+        os.remove(tar_path)
 
 
 def load_and_open(urls, output_dir):
     for url in urls:
         filename = os.path.basename(url)
         file_path = os.path.join(output_dir, filename)
-
         print(f"Downloading {filename}")
         download_file(url, file_path)
 
@@ -102,8 +66,4 @@ def load_and_open(urls, output_dir):
             unbz2_file(file_path, output_dir)
         else:
             print(f"{filename} not an archive")
-
-
-# Mian
-load_and_open(luna_urls, luna_output_dir)
-load_and_open(vessel_urls, vessel_output_dir)
+        os.remove(file_path)

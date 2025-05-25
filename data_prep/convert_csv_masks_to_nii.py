@@ -1,38 +1,18 @@
+import csv
 import os
 import numpy as np
 import nibabel as nib
-import pandas as pd
 
-def csv_to_mask_nifti(csv_path, reference_scan_path, output_mask_path):
-    df = pd.read_csv(csv_path, names=["x", "y", "z", "label"])
+def convert_csv_to_mask(csv_path, reference_scan_path, output_mask_path):
+    output_dir = os.path.dirname(output_mask_path)
+    os.makedirs(output_dir, exist_ok=True)
     ref_img = nib.load(reference_scan_path)
     shape = ref_img.shape
     affine = ref_img.affine
     mask = np.zeros(shape, dtype=np.uint8)
-
-    for _, row in df.iterrows():
-        x, y, z, label = map(int, row)
-        mask[x, y, z] = label
-
-    mask_img = nib.Nifti1Image(mask, affine)
-    nib.save(mask_img, output_mask_path)
-    print(f"Saved mask: {output_mask_path}")
-
-
-csv_to_mask_nifti(
-    csv_path='data/raw/vessel12/ExampleScans/Annotations/VESSEL12_21_Annotations.csv',
-    reference_scan_path='data/raw/vessel12/ExampleScans/scans_converted/VESSEL12_21.nii.gz',
-    output_mask_path='data/raw/vessel12/ExampleScans/Vessel_masks/VESSEL12_21.nii.gz'
-)
-
-csv_to_mask_nifti(
-    csv_path='data/raw/vessel12/ExampleScans/Annotations/VESSEL12_22_Annotations.csv',
-    reference_scan_path='data/raw/vessel12/ExampleScans/scans_converted/VESSEL12_22.nii.gz',
-    output_mask_path='data/raw/vessel12/ExampleScans/Vessel_masks/VESSEL12_22.nii.gz'
-)
-
-csv_to_mask_nifti(
-    csv_path='data/raw/vessel12/ExampleScans/Annotations/VESSEL12_23_Annotations.csv',
-    reference_scan_path='data/raw/vessel12/ExampleScans/scans_converted/VESSEL12_23.nii.gz',
-    output_mask_path='data/raw/vessel12/ExampleScans/Vessel_masks/VESSEL12_23.nii.gz'
-)
+    with open(csv_path, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            x, y, z, label = map(int, row)
+            mask[x, y, z] = 1
+    nib.save(nib.Nifti1Image(mask, affine), output_mask_path)

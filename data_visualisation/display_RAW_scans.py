@@ -6,8 +6,6 @@ class CTViewer:
     def __init__(self, volume):
         self.volume = volume
         self.index = volume.shape[0] // 2
-
-
         self.fig, self.ax = plt.subplots()
         self.im = self.ax.imshow(self.volume[self.index], cmap='gray')
         self.update_title()
